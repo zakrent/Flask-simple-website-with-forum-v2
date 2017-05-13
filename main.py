@@ -74,7 +74,10 @@ def topic(forumPage, topicID, page):
         SELECT TOPICS.NAME
         FROM TOPICS
         WHERE TOPICS.ID = %s;''', (topicID, ))
-    name = cur.fetchone()['NAME']
+    topic = cur.fetchone()
+    if not topic:
+        return redirect("/forum/"+forumPage)
+    name = topic['NAME']
     cur.execute('''
         SELECT POSTS.CONTENT, POSTS.CREATION_DATE, USERS.USERNAME, USERS.ISADMIN
         FROM POSTS

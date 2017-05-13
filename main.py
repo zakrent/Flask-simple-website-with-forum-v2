@@ -71,15 +71,16 @@ def topic(forumPage, topicID, page):
     nextPageExists = False
     cur = mysql.connection.cursor()
     cur.execute('''
-        SELECT TOPICS.NAME
+        SELECT TOPICS.NAME, TOPICS.ISPINNED
         FROM TOPICS
         WHERE TOPICS.ID = %s;''', (topicID, ))
     topic = cur.fetchone()
     if not topic:
         return redirect("/forum/"+forumPage)
     name = topic['NAME']
+    isPinned = int(topic['ISPINNED'])
     cur.execute('''
-        SELECT POSTS.CONTENT, POSTS.CREATION_DATE, USERS.USERNAME, USERS.ISADMIN
+        SELECT POSTS.ID, POSTS.CONTENT, POSTS.CREATION_DATE, USERS.USERNAME, USERS.ISADMIN
         FROM POSTS
         INNER JOIN USERS ON POSTS.CREATORID = USERS.ID
         WHERE POSTS.TOPICID = %s
@@ -91,7 +92,8 @@ def topic(forumPage, topicID, page):
     if len(posts) == 0 and page != 0:
         return redirect("/forum/topic/"+forumPage+"/"+topicID+"/"+str(page-1))
     posts = posts[:limit]
-    return render_template("topic.html", p=2, posts = posts, name = name, topicID = topicID, forumPage = forumPage, page = page, nextPageExists = nextPageExists)
+    return render_template("topic.html", p=2, posts = posts, name = name, topicID = topicID, forumPage = forumPage,
+        page = page, nextPageExists = nextPageExists, isPinned = isPinned, isAdmin = session.get('isAdmin'))
 
 #Create post, topic
 
@@ -140,6 +142,50 @@ def createTopic():
         createPostFunction(content, topicID, userID)
         return redirect("/forum/topic/0/"+str(topicID)+"/0")
     return redirect("/forum")
+
+
+@app.route("/forum/pinTopic/<pin>/<topicID>")
+def setTopicPin(pin, topicID):
+    pin = (pin == "True")
+    if session.get('isAdmin'):
+        cur = mysql.connection.cursor()
+        cur.execute('''
+            UPDATE TOPICS
+            SET ISPINNED = %s
+            WHERE ID = %s;
+            ''', (int(pin) == 1, topicID,))
+        mysql.connection.commit()
+        cur.close()
+    return redirect("/forum/topic/0/%s/0"%(topicID))
+
+@app.route("/forum/deleteTopic/<topicID>")
+def deleteTopic(topicID):
+    if session.get('isAdmin'):
+        cur = mysql.connection.cursor()
+        cur.execute('''
+            DELETE
+            FROM POSTS
+            WHERE TOPICID = %s''', (topicID,))
+        mysql.connection.commit()
+        cur.execute('''
+            DELETE
+            FROM TOPICS
+            WHERE ID = %s''', (topicID,))
+        mysql.connection.commit()
+        cur.close()
+    return redirect("/forum/topic/0/%s/0"%(topicID))
+
+@app.route("/forum/deletePost/<topicID>/<postID>")
+def deletePost(topicID, postID):
+    if session.get('isAdmin'):
+        cur = mysql.connection.cursor()
+        cur.execute('''
+            DELETE
+            FROM POSTS
+            WHERE ID = %s''', (postID,))
+        mysql.connection.commit()
+        cur.close()
+    return redirect("/forum/topic/0/%s/0"%(topicID))
 # ---
 
 #Panel
@@ -168,6 +214,7 @@ def login():
             session['ID'] = user['ID']
             session['username'] = user['USERNAME']
             session['logged_in'] = True
+            session['isAdmin'] = (user['ISADMIN'] == 1)
             flash(u"You're now logged in!", "info")
         else:
             flash(u"Passwords don't match!", "danger")

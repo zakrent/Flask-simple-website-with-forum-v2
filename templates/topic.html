@@ -4,6 +4,10 @@
 <div class="panel panel-default" style="width:95%; margin-left:2.5%">
     <nav class="navbar navbar-default">
       <div class="navbar-brand">{{name}}</div>
+      {% if isAdmin %}
+      <a type="button" class="btn btn-warning navbar-btn" href="/forum/pinTopic/{{not isPinned}}/{{topicID}}">{% if isPinned %} Unpin {% else %} Pin {% endif %}</a>
+      <a type="button" class="btn btn-danger navbar-btn" href="/forum/deleteTopic/{{topicID}}">Delete</a>
+      {% endif %}
       <a href="/forum/{{forumPage}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Back</a>
       {% if nextPageExists%}
         <a href = "/forum/topic/{{forumPage}}/{{topicID}}/{{page+1}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Next page</a>
@@ -24,6 +28,10 @@
                     {% if post['ISADMIN'] %}<span style="color: #FF0000">{% endif %}
                     {{post["USERNAME"]}}
                     {% if post['ISADMIN'] %}</span>{% endif %}
+
+                    {% if isAdmin %}
+                    <a href = "/forum/deletePost/{{topicID}}/{{post["ID"]}}" style="font-size: Xx-small; color: #FF0000";>Delete post</a>
+                    {% endif %}
                   </td>
                   <td style="width: 80%;">
                   <span style="float: right"><span style="font-size: x-small;">Posted on: </span>{{post["CREATION_DATE"]}}</span>

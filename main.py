@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "E5CDD5E9422A8D509A392DB9621097C2DEFF1C1AE90714A78AC84E3EAC072E87" #remember to change it!
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_PASSWORD'] = 'pass'
 app.config['MYSQL_DB'] = 'FLASK_FORUM'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
@@ -135,7 +135,7 @@ def createTopic():
         topicID = cur.lastrowid
         cur.close()
         createPostFunction(content, topicID, userID)
-        return redirect("/forum/topic/0/"+str(topicID))
+        return redirect("/forum/topic/0/"+str(topicID)+"/0")
     return redirect("/forum")
 # ---
 

@@ -1,0 +1,38 @@
+{% extends "header.html" %}
+
+{% block body %}
+<div class="panel panel-default" style="width:95%; margin-left:2.5%">
+    <form style="margin:5%;" action="/login" method="post">
+        <h2>Log in:</h5>
+        <div class="form-group">
+            <label for="InputNick">Username:</label>
+            <input type="text" class="form-control" id="InputNick" placeholder="Username" name="username">
+        </div>
+        <div class="form-group">
+            <label for="InputPassword">Password:</label>
+            <input type="password" class="form-control" id="InputPassword" placeholder="Password" name="passwd">
+        </div>
+        <button type="submit" class="btn btn-default">Log in</button>
+    </form>
+
+    <form style="margin:5%;" action="/register" method="post">
+        <h2>Register:</h5>
+        <div class="form-group">
+            <label for="InputNick">Username:</label>
+            <input type="text" class="form-control" id="InputNick" placeholder="Username" name="username">
+        </div>
+        <div class="form-group">
+            <label for="InputPassword">Password:</label>
+            <input type="password" class="form-control" id="InputPassword" placeholder="Password" name="passwd">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="InputPasswordCheck" placeholder="Repeat Password" name="passwdcheck">
+        </div>
+        <div class="form-group">
+            <label for="InputEmail">Email:</label>
+            <input type="email" class="form-control" id="InputEmail" placeholder="Email" name="email">
+        </div>
+        <button type="submit" class="btn btn-default">Register</button>
+    </form>
+</div>
+{% endblock %}

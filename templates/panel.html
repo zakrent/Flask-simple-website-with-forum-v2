@@ -1,0 +1,30 @@
+{% extends "header.html" %}
+
+{% block body %}
+<div class="panel panel-default" style="width:95%; margin-left:2.5%">
+    <div style="margin:5%">
+        <h2>Profile information:</h2>
+        <ul>
+        <li>Username : {{user['USERNAME']}}</li>
+        <li>Email adress : {{user['EMAIL']}}</li>
+        </ul>
+        <a href="/logout" type="button" class="btn btn-primary">Logout</a>
+        <h3>Work in progress</h3>
+    </div>
+</div>
+
+<!--<div class="panel panel-default" style="width:95%; margin-left:2.5%">
+    <div style="margin:5%">
+        <h2>Napisz wiadomosc do administracji:</h2>
+        <form style="margin:5%;" action="/message" method="post">
+            <div class="form-group">
+                <input type="text" class="form-control" id="InputNick" placeholder="Temat wiadomosci" name="username">
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" rows="6" name="text" placeholder="Tresc"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Wyslij</button>
+        </form>
+    </div>
+!-->
+{% endblock %}

@@ -32,6 +32,7 @@ def forum(page):
     cur = mysql.connection.cursor()
     limit = 30
     offset = limit*page
+    nextPageExists = False
     pinned = {}
     if page == 0:
         cur.execute('''
@@ -51,14 +52,23 @@ def forum(page):
         WHERE TOPICS.ISPINNED = FALSE
         GROUP BY TOPICS.ID
         ORDER BY LASTPOST DESC
-        LIMIT %s, %s''', (offset,limit,))
+        LIMIT %s, %s''', (offset,limit+1,))
     topics = cur.fetchall()
-    if len(topics) == 0:
-        return redirect("/forum/"+str(page-1))
-    return render_template("forum.html", p=2, topics=topics, pinned=pinned, page = page)
 
-@app.route("/forum/topic/<page>/<topicID>")
-def topic(page, topicID):
+    if len(topics) > limit:
+        nextPageExists = True
+    topics = topics[:limit]
+
+    if len(topics) == 0 and page != 0:
+        return redirect("/forum/"+str(page-1))
+
+    return render_template("forum.html", p=2, topics=topics, pinned=pinned, page = page, nextPageExists = nextPageExists)
+
+@app.route("/forum/topic/<forumPage>/<topicID>/<page>")
+def topic(forumPage, topicID, page):
+    page = int(page)
+    limit = 10
+    nextPageExists = False
     cur = mysql.connection.cursor()
     cur.execute('''
         SELECT TOPICS.NAME
@@ -71,10 +81,14 @@ def topic(page, topicID):
         INNER JOIN USERS ON POSTS.CREATORID = USERS.ID
         WHERE POSTS.TOPICID = %s
         ORDER BY POSTS.CREATION_DATE
-        LIMIT 20;''', (topicID, ))
+        LIMIT %s, %s;''', (topicID, page*limit, limit+1))
     posts = cur.fetchall()
-
-    return render_template("topic.html", p=2, posts = posts, name = name, topicID = topicID, page = page)
+    if len(posts) > limit:
+        nextPageExists = True
+    if len(posts) == 0 and page != 0:
+        return redirect("/forum/topic/"+forumPage+"/"+topicID+"/"+str(page-1))
+    posts = posts[:limit]
+    return render_template("topic.html", p=2, posts = posts, name = name, topicID = topicID, forumPage = forumPage, page = page, nextPageExists = nextPageExists)
 
 #Create post, topic
 
@@ -92,6 +106,7 @@ def createPostFunction(content, topicID, userID):
 def createPost():
     content = request.form['content']
     topicID = request.form['topicID']
+    page = request.form['page']
     if not session.get('logged_in'):
         flash(u"You must be logged in!", "danger")
     elif not content:
@@ -99,7 +114,7 @@ def createPost():
     else:
         userID = session.get('ID')
         createPostFunction(content, topicID, userID)
-    return redirect("/forum/topic/0/"+topicID)
+    return redirect("/forum/topic/0/"+topicID+"/"+page)
 
 @app.route("/forum/createTopic", methods=['POST'])
 def createTopic():

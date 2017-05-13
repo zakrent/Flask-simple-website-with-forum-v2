@@ -4,7 +4,16 @@
 <div class="panel panel-default" style="width:95%; margin-left:2.5%">
     <nav class="navbar navbar-default">
       <div class="navbar-brand">{{name}}</div>
-      <a href="/forum/{{page}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Back</a>
+      <a href="/forum/{{forumPage}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Back</a>
+      {% if nextPageExists%}
+        <a href = "/forum/topic/{{forumPage}}/{{topicID}}/{{page+1}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Next page</a>
+      {% else %}
+        <div type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;" disabled="disabled">Next page</div>
+      {% endif %}
+      <div type="button" class="btn navbar-btn" style="float: right; margin-right: 2%;">{{page}}</div>
+      {% if page > 0 %}
+      <a href = "/forum/topic/{{forumPage}}/{{topicID}}/{{page-1}}" type="button" class="btn btn-primary navbar-btn" style="float: right; margin-right: 2%;">Last page</a>
+      {% endif %}
     </nav>
     <div style="margin:3%">
         {% if posts %}
@@ -33,6 +42,7 @@
             <div class="form-group">
                 <textarea class="form-control" rows="3" name="content"></textarea>
                 <input type="hidden" name="topicID" value="{{topicID}}"/>
+                <input type="hidden" name="page" value="{{page}}"/>
             </div>
             <button type="submit" class="btn btn-default">Post</button>
         </form>
